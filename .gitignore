@@ -1,0 +1,7 @@
+.idea/
+deploy/bin/
+configs/
+test/
+vendor/
+out.log
+k8swatch
