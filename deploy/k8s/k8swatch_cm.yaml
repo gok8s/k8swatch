@@ -1,0 +1,116 @@
+apiVersion: v1
+data:
+  config.yaml: |
+    resources:
+    - name: events
+      enable: true
+
+    - name: endpoints
+      anable: true
+
+    - name: pods
+      enable: true
+
+    - name: nodes
+      enable: true
+
+    - name: services
+      enable: true
+
+    - name: namespaces
+      enable: true
+
+    - name: replicationcontrolleres
+      enable: true
+
+    - name: persistentvolumes
+      enable: true
+
+    - name: persistentvolumeclaim
+      enable: true
+
+    - name: secrets
+      enable: true
+
+    - name: configmaps
+      enable: true
+
+    - name: deployments
+      enable: true
+
+    - name: replicasets
+      enable: true
+
+    - name: daemonset
+      enable: true
+
+    - name: ingresses
+      enable: true
+
+    - name: jobs
+      enable: true
+
+    - name: roles
+      enable: true
+
+    - name: rolebindings
+      enable: true
+
+    - name: clusterroles
+      enable: true
+
+    - name: clusterrolebindings
+      enable: true
+
+
+    handlers:
+      alert:
+        enable: true
+        enableAdminAlert: true
+        enableAppOwnerAlert: true
+        server: "http://alertwebhook/v1/k8sevent/alert"
+
+      rabbitmq:
+        enable: true
+        servers: ""
+        topicName: "k8s-events"
+        exchangeType: "direct"
+        durable: true
+        routeKey: "k8sevents"
+        username: event
+        password: xxx
+        vhost: "paas-prod"
+
+      influxdb:
+        enable: false
+        server: "http://xxx:8086"
+        username: events
+        password: events
+        dbName: events
+
+
+      elasticsearch:
+        enable: true
+        servers:
+          - "http://xx:9200"
+          - "http://xx:9200"
+          - "http://xx:9200"
+          - "http://xx:9200"
+          - "http://xx:9200"
+        index: k8swatch
+    k8s:
+      apiServerHost: "https://xxx:6443"
+      kubeConfigFile: "./configs/xxx.conf"  #在k8s集群内部该参数不生效,仅用在集群内
+      clusterName: "cluster-a"
+
+    settings:
+      httpPort: 8080
+      enableProfiling: true
+      logLevel: "debug"
+      logFile: "/var/app/log/k8swatch.log"
+      logStdout: true
+      threadiness: 10
+kind: ConfigMap
+metadata:
+  name: k8swatch
+  namespace: xxx

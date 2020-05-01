@@ -1,0 +1,121 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    env: np
+    servicename: k8swatch
+  name: k8swatch
+  namespace: xxx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      servicename: k8swatch
+  strategy:
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        servicename: k8swatch
+    spec:
+      containers:
+      - env:
+        - name: productName
+          value: cre
+        - name: projectName
+          value: k8swatch
+        - name: serviceName
+          value: k8swatch
+        - name: env
+          value: np
+        - name: K8SWATCH_CONF
+          value: config
+        - name: LANG
+          value: en_US.UTF-8
+        - name: TZ
+          value: Asia/Shanghai
+        - name: PORT0
+          value: "8080"
+        - name: LOG_PATH
+          value: /var/app/log
+        - name: LOG_FILE_NAME
+          value: k8swatch.log
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: HOST
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.hostIP
+        image: harbor.xx.com/xxx/k8swatch:xx
+        imagePullPolicy: Always
+        lifecycle:
+          postStart:
+            exec:
+              command:
+              - date
+          preStop:
+            exec:
+              command:
+              - /bin/sleep
+              - "5"
+        livenessProbe:
+          failureThreshold: 5
+          httpGet:
+            path: /healthz
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 15
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 10
+        name: k8swatch
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /healthz
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 15
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 10
+        resources:
+          limits:
+            cpu: "1"
+            memory: 1Gi
+          requests:
+            cpu: 100m
+            memory: 1Gi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /var/app/log/
+          name: k8swatch-volume
+        - mountPath: /etc/k8swatch/configs/config.yaml
+          name: config-volume
+          subPath: config.yaml
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: k8swatch-serviceaccount
+      serviceAccountName: k8swatch-serviceaccount
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - hostPath:
+          path: /data/docker_volumes/pub/cre/k8swatch/2018/
+          type: ""
+        name: k8swatch-volume
+      - configMap:
+          defaultMode: 420
+          name: k8swatch
+        name: config-volume
+status:
